@@ -89,4 +89,4 @@ ISC. See [LICENSE](LICENSE).
 
 ## Support the project
 
-If AgentLaunch Doctor saves you time, you can support continued maintenance through [GitHub Sponsors](https://github.com/sponsors/pastorstephan-prog).
+Funding is not active yet. Public support options will be added only after the funding account is approved and the route is verified.

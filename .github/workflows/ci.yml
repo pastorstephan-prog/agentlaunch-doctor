@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: swift test
+      - name: Release build
+        run: swift build -c release
+      - name: CLI smoke test
+        run: .build/release/agentlaunch-doctor --version

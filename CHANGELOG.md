@@ -2,6 +2,10 @@
 
 All notable changes to AgentLaunch Doctor are documented here.
 
+## 0.1.3 - 2026-07-21
+
+- Remove the inactive GitHub Sponsors link until the funding profile is publicly available.
+
 ## 0.1.2 - 2026-07-21
 
 - Place the executable at the root of the release archive so the documented unzip command works directly.

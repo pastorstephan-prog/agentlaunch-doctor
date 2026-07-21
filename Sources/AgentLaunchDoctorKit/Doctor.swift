@@ -11,12 +11,41 @@ public struct Finding: Codable, Equatable, Sendable {
     public let severity: Severity
     public let code: String
     public let message: String
+    public let nextStep: String
 
-    public init(severity: Severity, code: String, message: String) {
+    public init(severity: Severity, code: String, message: String, nextStep: String? = nil) {
         self.severity = severity
         self.code = code
         self.message = message
+        self.nextStep = nextStep ?? Self.guidance[code] ?? "Review the owning product's documentation before changing this job."
     }
+
+    private static let guidance: [String: String] = [
+        "plist.unreadable": "Validate the original file with plutil -lint and review it locally; do not share plist contents that may contain secrets.",
+        "plist.label.missing": "Add a unique non-empty Label only after backing up the plist and checking the owning product's documentation.",
+        "permissions.plist-writable": "Confirm the intended owner, then remove group/other write access if the job does not explicitly require it.",
+        "permissions.secret-readable": "Restrict the plist to its owner and move long-lived credentials to a safer store when the owning product supports one.",
+        "program.missing": "Confirm the intended executable and restore Program or ProgramArguments according to the owning product's documentation.",
+        "program.tilde": "Replace '~' with an absolute path in a backed-up copy of the plist, then use the owning product's normal reload procedure.",
+        "program.not-found": "Check whether the executable moved or was uninstalled before changing the plist path.",
+        "program.not-executable": "Confirm the file is the intended program, then restore executable permission only if its documentation requires it.",
+        "program.relative": "Prefer an absolute executable path and verify the change with the owning product's documented service command.",
+        "working-directory.tilde": "Replace '~' with an absolute directory path after backing up the plist.",
+        "working-directory.missing": "Restore the intended directory or update the plist to an existing directory after confirming expected behavior.",
+        "logs.parent-missing": "Create the intended owner-only log directory or update the log path after checking the job's documentation.",
+        "logs.not-created": "If the job has run, verify its launch state and log path; otherwise no action may be needed.",
+        "logs.stale": "Compare the job's schedule and last exit status. No action is needed when infrequent or quiet operation is expected.",
+        "logs.world-writable": "Confirm ownership and remove write access for other users if it is not explicitly required.",
+        "secrets.environment": "Prefer a keychain or protected credential file supported by the product; rotate credentials if exposure is suspected.",
+        "secrets.arguments": "Remove secrets from command arguments, rotate exposed credentials, and use the product's protected secret mechanism.",
+        "network.public-bind": "Bind to loopback when remote access is unnecessary; otherwise verify authentication plus firewall or VPN boundaries.",
+        "restart.low-throttle": "Increase ThrottleInterval to at least 10 seconds unless the owning product documents a lower safe value.",
+        "restart.always-on": "No action is needed when continuous operation is intentional; investigate only if the job should be scheduled or on-demand.",
+        "trigger.none": "Confirm whether manual-only loading is intentional; otherwise add one documented launch trigger.",
+        "runtime.not-loaded": "Check the job with launchctl print for the current user, then use the owning product's install or start command if it should be active.",
+        "runtime.last-exit": "Inspect the job's own local logs and documentation for this exit code; AgentLaunch Doctor does not read log contents.",
+        "scan.clean": "No action is suggested. Re-run after configuration or macOS changes.",
+    ]
 }
 
 public struct RuntimeStatus: Codable, Equatable, Sendable {
@@ -77,7 +106,7 @@ public enum DoctorError: LocalizedError {
 }
 
 public final class AgentDoctor {
-    public static let version = "0.1.3"
+    public static let version = "0.2.0"
 
     private let options: DoctorOptions
     private let fileManager: FileManager
@@ -250,7 +279,7 @@ public final class AgentDoctor {
                 continue
             }
             if options.now.timeIntervalSince(modified) > 7 * 24 * 60 * 60 {
-                findings.append(Finding(severity: .warning, code: "logs.stale", message: "A configured log file has not changed for more than seven days."))
+                findings.append(Finding(severity: .info, code: "logs.stale", message: "A configured log file has not changed for more than seven days; this may be normal for quiet or infrequent jobs."))
             }
             if let permissions = (attributes[.posixPermissions] as? NSNumber)?.intValue,
                permissions & 0o002 != 0 {
@@ -438,6 +467,7 @@ public enum TextRenderer {
             lines.append("Source: \(agent.source)")
             for finding in agent.findings {
                 lines.append("- [\(finding.severity.rawValue.uppercased())] \(finding.code): \(finding.message)")
+                lines.append("  Next: \(finding.nextStep)")
             }
             lines.append("")
         }

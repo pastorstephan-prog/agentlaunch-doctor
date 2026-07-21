@@ -97,6 +97,55 @@ final class DoctorTests: XCTestCase {
         try Data("not a plist".utf8).write(to: url)
         let report = makeDoctor().scan(urls: [url])
         XCTAssertEqual(report.agents[0].findings.first?.code, "plist.unreadable")
+        XCTAssertFalse(report.agents[0].findings.first?.nextStep.isEmpty ?? true)
+    }
+
+    func testEveryFindingIncludesAnActionableNextStep() throws {
+        let plist = try writePlist([
+            "Label": "com.example.actionable",
+            "ProgramArguments": ["/missing/example-binary"],
+        ], permissions: 0o666)
+        let report = makeDoctor().scan(urls: [plist])
+        XCTAssertFalse(report.agents[0].findings.isEmpty)
+        XCTAssertTrue(report.agents[0].findings.allSatisfy { !$0.nextStep.isEmpty })
+        XCTAssertTrue(TextRenderer.render(report).contains("Next:"))
+    }
+
+    func testStaleLogIsInformationalNotActionableWarning() throws {
+        let logDirectory = temporaryDirectory.appendingPathComponent("logs", isDirectory: true)
+        try FileManager.default.createDirectory(at: logDirectory, withIntermediateDirectories: true)
+        let log = logDirectory.appendingPathComponent("job.log")
+        try Data().write(to: log)
+        try FileManager.default.setAttributes(
+            [.modificationDate: Date(timeIntervalSince1970: 0)],
+            ofItemAtPath: log.path
+        )
+        let plist = try writePlist([
+            "Label": "com.example.stale-log",
+            "ProgramArguments": ["/bin/echo"],
+            "RunAtLoad": true,
+            "StandardOutPath": log.path,
+        ], permissions: 0o600)
+        let report = AgentDoctor(options: DoctorOptions(
+            now: Date(timeIntervalSince1970: 8 * 24 * 60 * 60),
+            queryRuntime: false
+        )).scan(urls: [plist])
+        let finding = report.agents[0].findings.first { $0.code == "logs.stale" }
+        XCTAssertEqual(finding?.severity, .info)
+        XCTAssertTrue(finding?.nextStep.contains("No action") ?? false)
+    }
+
+    func testSecretNeverAppearsInJSONNextStep() throws {
+        let secret = "do-not-render-this-token"
+        let plist = try writePlist([
+            "Label": "com.example.json-secret",
+            "ProgramArguments": ["/bin/echo", "--token", secret],
+            "RunAtLoad": true,
+        ], permissions: 0o600)
+        let report = makeDoctor().scan(urls: [plist])
+        let json = String(decoding: try JSONEncoder().encode(report), as: UTF8.self)
+        XCTAssertFalse(json.contains(secret))
+        XCTAssertTrue(json.contains("nextStep"))
     }
 
     private func makeDoctor() -> AgentDoctor {

@@ -2,6 +2,10 @@
 
 All notable changes to AgentLaunch Doctor are documented here.
 
+## 0.1.1 - 2026-07-21
+
+- Fix the release checksum manifest so it verifies correctly after download.
+
 ## 0.1.0 - 2026-07-21
 
 - Add read-only inspection of per-user macOS LaunchAgents.

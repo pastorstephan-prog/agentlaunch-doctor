@@ -26,7 +26,7 @@ jobs:
           codesign --force --sign - dist/agentlaunch-doctor
           lipo -info dist/agentlaunch-doctor
           ditto -c -k --keepParent dist/agentlaunch-doctor dist/agentlaunch-doctor-macos-universal.zip
-          shasum -a 256 dist/agentlaunch-doctor-macos-universal.zip > dist/SHA256SUMS
+          (cd dist && shasum -a 256 agentlaunch-doctor-macos-universal.zip > SHA256SUMS)
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}

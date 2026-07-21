@@ -25,7 +25,7 @@ jobs:
           lipo -create /tmp/agentlaunch-doctor-arm64 /tmp/agentlaunch-doctor-x86_64 -output dist/agentlaunch-doctor
           codesign --force --sign - dist/agentlaunch-doctor
           lipo -info dist/agentlaunch-doctor
-          ditto -c -k --keepParent dist/agentlaunch-doctor dist/agentlaunch-doctor-macos-universal.zip
+          (cd dist && ditto -c -k agentlaunch-doctor agentlaunch-doctor-macos-universal.zip)
           (cd dist && shasum -a 256 agentlaunch-doctor-macos-universal.zip > SHA256SUMS)
       - name: Create GitHub Release
         env:

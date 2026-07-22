@@ -6,6 +6,7 @@ All notable changes to AgentLaunch Doctor are documented here.
 
 - Pin third-party GitHub Actions to immutable commits.
 - Build releases as drafts and publish them only after checksum, archive layout, version, architecture, and code-signature verification succeeds.
+- Run the full test suite and a release-build smoke test on a hosted Intel Mac in addition to Apple silicon CI.
 
 ## 0.2.0 - 2026-07-22
 

@@ -2,6 +2,13 @@
 
 All notable changes to AgentLaunch Doctor are documented here.
 
+## 0.2.0 - 2026-07-22
+
+- Add a privacy-safe, actionable next step to every text and JSON finding.
+- Reclassify stale logs as informational because quiet or infrequent jobs can be healthy.
+- Add a privacy-guarded external beta feedback form and explicit 30-day evidence gates.
+- Expand the regression suite from 7 to 10 tests.
+
 ## 0.1.3 - 2026-07-21
 
 - Remove the inactive GitHub Sponsors link until the funding profile is publicly available.

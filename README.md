@@ -21,7 +21,14 @@ The default report is for local use. Add `--strict` before sharing a report; str
 
 ## Quick start
 
-Requirements: macOS 13 or later. Download the Universal binary from GitHub Releases, or build from source with Swift 5.9 or later.
+Requirements: macOS 13 or later. The recommended install builds the tagged source locally with Homebrew and requires Xcode 15 or later:
+
+```bash
+brew install pastorstephan-prog/tap/agentlaunch-doctor
+agentlaunch-doctor --all-user-agents
+```
+
+Without Homebrew, build from source with Swift 5.9 or later:
 
 ```bash
 git clone https://github.com/pastorstephan-prog/agentlaunch-doctor.git
@@ -36,6 +43,8 @@ curl -LO https://github.com/pastorstephan-prog/agentlaunch-doctor/releases/lates
 unzip agentlaunch-doctor-macos-universal.zip
 ./agentlaunch-doctor --all-user-agents
 ```
+
+The release archive is ad-hoc signed and not Apple-notarized. Gatekeeper may block it on another Mac; use the Homebrew source build when that happens. The project does not recommend bypassing macOS security checks.
 
 Inspect selected jobs:
 

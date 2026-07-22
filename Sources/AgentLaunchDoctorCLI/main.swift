@@ -16,14 +16,14 @@ func usage() -> String {
     Read-only diagnostics for user-selected macOS LaunchAgents.
 
     Usage:
-      agentlaunch-doctor --all-user-agents [--strict] [--format text|json]
-      agentlaunch-doctor /path/to/job.plist [...] [--strict] [--format text|json]
+      agentlaunch-doctor --all-user-agents [--strict] [--format text|json|feedback]
+      agentlaunch-doctor /path/to/job.plist [...] [--strict] [--format text|json|feedback]
 
     Options:
       --all-user-agents  Inspect plist files in ~/Library/LaunchAgents.
       --strict           Redact labels and source filenames for shareable reports.
       --no-runtime       Skip launchctl state and perform static plist checks only.
-      --format FORMAT    text (default) or json.
+      --format FORMAT    text (default), json, or privacy-minimal feedback.
       --version          Print the version.
       --help             Show this help.
 
@@ -53,7 +53,7 @@ while index < arguments.count {
         options.queryRuntime = false
     case "--format":
         index += 1
-        guard index < arguments.count else { fail("--format requires text or json") }
+        guard index < arguments.count else { fail("--format requires text, json, or feedback") }
         options.format = arguments[index]
     case "--version":
         print(AgentDoctor.version)
@@ -68,7 +68,7 @@ while index < arguments.count {
     index += 1
 }
 
-guard ["text", "json"].contains(options.format) else { fail("--format must be text or json") }
+guard ["text", "json", "feedback"].contains(options.format) else { fail("--format must be text, json, or feedback") }
 guard options.allUserAgents || !options.paths.isEmpty else {
     print(usage())
     exit(2)
@@ -80,10 +80,15 @@ if options.allUserAgents {
 }
 urls = Array(Dictionary(grouping: urls, by: \.standardizedFileURL.path).compactMap { $0.value.first })
 
-let doctor = AgentDoctor(options: DoctorOptions(strictRedaction: options.strict, queryRuntime: options.queryRuntime))
+let doctor = AgentDoctor(options: DoctorOptions(
+    strictRedaction: options.strict || options.format == "feedback",
+    queryRuntime: options.queryRuntime
+))
 let report = doctor.scan(urls: urls)
 
-if options.format == "json" {
+if options.format == "feedback" {
+    print(FeedbackRenderer.render(report))
+} else if options.format == "json" {
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
     guard let data = try? encoder.encode(report) else { fail("Could not encode the report") }

@@ -17,16 +17,18 @@ AgentLaunch Doctor never:
 - reads stdout/stderr log contents
 - sends diagnostics to a server or AI provider
 
-The default report is for local use. Add `--strict` before sharing a report; strict mode redacts labels and filenames too.
+The default report is for local use. Use `--format feedback` for public beta feedback; it automatically enables strict redaction and outputs only the version, aggregate counts, and finding codes. Add `--strict` before sharing any other report.
 
 ## Quick start
 
-Requirements: macOS 13 or later. The recommended install builds the tagged source locally with Homebrew and requires Xcode 15 or later:
+The three-minute beta path requires macOS 13 or later, Homebrew, and Xcode 15 or later. Homebrew builds the tagged source locally:
 
 ```bash
 brew install pastorstephan-prog/tap/agentlaunch-doctor
-agentlaunch-doctor --all-user-agents
+agentlaunch-doctor --all-user-agents --format feedback
 ```
+
+An exit code of `1` means the scan completed and found at least one high-severity item; it is not an installation failure. Review the local detailed report with `agentlaunch-doctor --all-user-agents`. Then submit only the minimal feedback output through the [beta activation form](https://github.com/pastorstephan-prog/agentlaunch-doctor/issues/new?template=beta-activation.yml).
 
 Without Homebrew, build from source with Swift 5.9 or later:
 
@@ -49,22 +51,22 @@ The release archive is ad-hoc signed and not Apple-notarized. Gatekeeper may blo
 Inspect selected jobs:
 
 ```bash
-swift run agentlaunch-doctor ~/Library/LaunchAgents/com.example.agent.plist
+agentlaunch-doctor ~/Library/LaunchAgents/com.example.agent.plist
 ```
 
-Create a shareable JSON report:
+Create a privacy-minimal beta feedback report:
 
 ```bash
-swift run agentlaunch-doctor --all-user-agents --strict --format json > report.json
+agentlaunch-doctor --all-user-agents --format feedback
 ```
 
 If runtime lookup is restricted, run static plist checks only:
 
 ```bash
-swift run agentlaunch-doctor --all-user-agents --strict --no-runtime
+agentlaunch-doctor --all-user-agents --strict --no-runtime
 ```
 
-Exit code is `1` when a high-severity finding exists, otherwise `0`. CLI usage errors return `2`.
+Exit code is `1` when a completed scan has a high-severity finding, otherwise `0`. CLI usage errors return `2`.
 
 ## Checks
 
@@ -83,13 +85,14 @@ Findings are diagnostic evidence, not automatic proof of a vulnerability. Review
 
 ## External beta
 
-The current beta measures confirmed fixes, false high-severity findings, and repeat use without default telemetry. See [BETA.md](BETA.md) before sharing feedback. Public issues must contain only aggregate counts and finding codes—never plist contents, labels, paths, logs, or secrets.
+The current beta measures external activation, confirmed fixes, false high-severity findings, and repeat use without default telemetry. See [BETA.md](BETA.md) or [日本語ベータ案内](BETA.ja.md) before sharing feedback. Public issues must contain only aggregate counts and finding codes—never plist contents, labels, paths, logs, screenshots, or secrets.
 
 ## Development
 
 ```bash
 swift test
 swift build -c release
+swift run agentlaunch-doctor --all-user-agents
 ```
 
 ## Scope

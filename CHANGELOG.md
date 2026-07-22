@@ -2,6 +2,12 @@
 
 All notable changes to AgentLaunch Doctor are documented here.
 
+## 0.3.0 - 2026-07-23
+
+- Add a privacy-minimal `--format feedback` output containing only version, aggregate counts, and unique finding codes.
+- Add separate external-beta activation, installation-failure, and follow-up forms for measurable adoption and confirmed fixes.
+- Align the three-minute beta path and installed command examples across the English and Japanese guides.
+
 ## 0.2.2 - 2026-07-23
 
 - Fix Universal-architecture validation in the protected release workflow.

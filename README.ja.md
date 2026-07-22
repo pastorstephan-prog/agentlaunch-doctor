@@ -10,16 +10,18 @@ plistの妥当性、実行ファイルと作業ディレクトリ、launchctlの
 
 AgentLaunch Doctorはジョブのロード、アンロード、再起動、編集、削除、修復を行いません。Keychain、ブラウザ、メール、チャット、ログ本文を読みません。診断結果をサーバーやAIサービスへ送信しません。
 
-共有用レポートには必ず `--strict` を付け、出力内容を目視確認してください。strictモードではラベルとファイル名も匿名化します。
+公開ベータへの報告には `--format feedback` を使ってください。strict匿名化が自動で有効になり、版、集計数、検出コードだけを出力します。それ以外のレポートを共有する場合は必ず `--strict` を付けてください。
 
 ## 使い方
 
-対応環境はmacOS 13以降です。推奨の導入方法は、Xcode 15以降を使って公開済みタグのソースをMac上でビルドするHomebrew版です。
+3分ベータ手順の前提はmacOS 13以降、Homebrew、Xcode 15以降です。推奨のHomebrew版は公開済みタグのソースをMac上でビルドします。
 
 ```bash
 brew install pastorstephan-prog/tap/agentlaunch-doctor
-agentlaunch-doctor --all-user-agents
+agentlaunch-doctor --all-user-agents --format feedback
 ```
+
+終了コード `1` はインストール失敗ではなく、診断が完了しhigh判定が1件以上あったという意味です。詳細はローカルで `agentlaunch-doctor --all-user-agents` を実行して確認し、公開Issueには[初回ベータ報告フォーム](https://github.com/pastorstephan-prog/agentlaunch-doctor/issues/new?template=beta-activation.yml)から最小出力だけを記載してください。
 
 Homebrewを使わない場合は、Swift 5.9以降でソースから実行できます。
 
@@ -31,16 +33,16 @@ swift run agentlaunch-doctor --all-user-agents
 
 GitHub ReleasesのUniversalバイナリはad-hoc署名で、Appleの公証は未取得です。別のMacではGatekeeperに止められる場合があるため、その場合はHomebrew版を利用してください。macOSのセキュリティ確認を回避する操作は案内しません。
 
-共有用JSONレポート:
+公開ベータ用の最小レポート:
 
 ```bash
-swift run agentlaunch-doctor --all-user-agents --strict --format json > report.json
+agentlaunch-doctor --all-user-agents --format feedback
 ```
 
 high判定が1件以上あれば終了コードは `1`、問題がなければ `0`、使い方の誤りは `2` です。
 
 ## 外部ベータ
 
-現在は、標準テレメトリーを使わず、確認済み修正、high誤判定、再利用を測る外部ベータ段階です。フィードバック前に[BETA.md](BETA.md)を確認してください。公開Issueには集計数と検出コードだけを記載し、plist本文、ラベル、パス、ログ、秘密情報は投稿しないでください。
+現在は、標準テレメトリーを使わず、外部利用開始、確認済み修正、high誤判定、再利用を測る段階です。フィードバック前に[日本語ベータ案内](BETA.ja.md)を確認してください。公開Issueには集計数と検出コードだけを記載し、plist本文、ラベル、パス、ログ、スクリーンショット、秘密情報は投稿しないでください。
 
 詳細な診断項目、開発方法、ライセンスは[英語README](README.md)を参照してください。

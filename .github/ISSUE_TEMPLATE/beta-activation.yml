@@ -1,0 +1,142 @@
+name: External beta activation
+description: Record one privacy-safe first scan without posting a full report.
+title: "[Beta activation] "
+labels:
+  - beta-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        GitHub issues are public. Run `agentlaunch-doctor --all-user-agents --format feedback` and enter only its aggregate numbers and one finding code.
+
+        Never paste or upload a full report, plist, label, filename, path, log, screenshot, token, credential, or account detail.
+  - type: checkboxes
+    id: eligibility
+    attributes:
+      label: External operator eligibility
+      options:
+        - label: I am not the project owner and this is not owner-operated QA, a bot, or CI.
+          required: true
+        - label: I operate at least three user LaunchAgents on this Mac.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: AgentLaunch Doctor version
+      description: Enter only the value printed by `agentlaunch-doctor --version`.
+      placeholder: "0.3.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installation method
+      options:
+        - Homebrew
+        - GitHub Release
+        - Built from source
+    validations:
+      required: true
+  - type: dropdown
+    id: scan_status
+    attributes:
+      label: Scan result
+      description: Exit 1 means the scan succeeded with a high finding; exit 2 is a usage error.
+      options:
+        - Completed - exit 0
+        - Completed with high findings - exit 1
+    validations:
+      required: true
+  - type: input
+    id: agents
+    attributes:
+      label: Agents scanned
+      description: Enter only the number after `agents:` in feedback output.
+      placeholder: "8"
+    validations:
+      required: true
+  - type: input
+    id: high
+    attributes:
+      label: High findings
+      description: Enter only the number after `high:`.
+      placeholder: "1"
+    validations:
+      required: true
+  - type: input
+    id: warnings
+    attributes:
+      label: Warning findings
+      description: Enter only the number after `warnings:`.
+      placeholder: "2"
+    validations:
+      required: true
+  - type: input
+    id: info
+    attributes:
+      label: Info findings
+      description: Enter only the number after `info:`.
+      placeholder: "5"
+    validations:
+      required: true
+  - type: dropdown
+    id: finding_code
+    attributes:
+      label: One finding code to investigate
+      description: Pick one code shown in feedback output. Submit a separate follow-up for each investigated code.
+      options:
+        - logs.not-created
+        - logs.parent-missing
+        - logs.stale
+        - logs.world-writable
+        - network.public-bind
+        - permissions.plist-writable
+        - permissions.secret-readable
+        - plist.label.missing
+        - plist.unreadable
+        - program.missing
+        - program.not-executable
+        - program.not-found
+        - program.relative
+        - program.tilde
+        - restart.always-on
+        - restart.low-throttle
+        - runtime.last-exit
+        - runtime.not-loaded
+        - scan.clean
+        - secrets.arguments
+        - secrets.environment
+        - trigger.none
+        - working-directory.missing
+        - working-directory.tilde
+    validations:
+      required: true
+  - type: dropdown
+    id: prior_use
+    attributes:
+      label: Prior use
+      options:
+        - This is my first scan
+        - I used an earlier version before this beta issue
+    validations:
+      required: true
+  - type: dropdown
+    id: willingness_to_pay
+    attributes:
+      label: Optional future signed GUI price
+      description: If a signed, notarized GUI added history and guided checks, what one-time price would you seriously consider?
+      options:
+        - Free only
+        - US$5
+        - US$15
+        - US$29
+        - Prefer not to answer
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy confirmation
+      options:
+        - label: I included only version, aggregate numbers, form choices, and a finding code; no report, plist, identifiers, paths, logs, screenshots, secrets, or account details.
+          required: true

@@ -27,7 +27,7 @@ jobs:
           lipo -create /tmp/agentlaunch-doctor-arm64 /tmp/agentlaunch-doctor-x86_64 -output dist/agentlaunch-doctor
           codesign --force --sign - dist/agentlaunch-doctor
           test "$(dist/agentlaunch-doctor --version)" = "$VERSION"
-          lipo -verify_arch arm64 x86_64 dist/agentlaunch-doctor
+          lipo dist/agentlaunch-doctor -verify_arch arm64 x86_64
           codesign --verify --strict --verbose=2 dist/agentlaunch-doctor
           (cd dist && ditto -c -k agentlaunch-doctor agentlaunch-doctor-macos-universal.zip)
           (cd dist && shasum -a 256 agentlaunch-doctor-macos-universal.zip > SHA256SUMS)
@@ -58,6 +58,6 @@ jobs:
           test "$(find verified/extracted -type f | wc -l | tr -d ' ')" = "1"
           test -f verified/extracted/agentlaunch-doctor
           test "$(verified/extracted/agentlaunch-doctor --version)" = "$VERSION"
-          lipo -verify_arch arm64 x86_64 verified/extracted/agentlaunch-doctor
+          lipo verified/extracted/agentlaunch-doctor -verify_arch arm64 x86_64
           codesign --verify --strict --verbose=2 verified/extracted/agentlaunch-doctor
           gh release edit "$GITHUB_REF_NAME" --draft=false

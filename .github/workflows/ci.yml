@@ -19,3 +19,17 @@ jobs:
         run: swift build -c release
       - name: CLI smoke test
         run: .build/release/agentlaunch-doctor --version
+  intel-verify:
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Confirm Intel runner
+        run: test "$(uname -m)" = "x86_64"
+      - name: Test
+        run: swift test
+      - name: Release build
+        run: swift build -c release
+      - name: Intel CLI smoke test
+        run: |
+          file .build/release/agentlaunch-doctor | grep -q "Mach-O 64-bit executable x86_64"
+          .build/release/agentlaunch-doctor --version

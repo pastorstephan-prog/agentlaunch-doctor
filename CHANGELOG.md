@@ -2,6 +2,11 @@
 
 All notable changes to AgentLaunch Doctor are documented here.
 
+## Unreleased
+
+- Pin third-party GitHub Actions to immutable commits.
+- Build releases as drafts and publish them only after checksum, archive layout, version, architecture, and code-signature verification succeeds.
+
 ## 0.2.0 - 2026-07-22
 
 - Add a privacy-safe, actionable next step to every text and JSON finding.

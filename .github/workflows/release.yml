@@ -12,11 +12,13 @@ jobs:
   release:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Test
         run: swift test
       - name: Build Universal binary
         run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
           swift build -c release --arch arm64
           cp .build/arm64-apple-macosx/release/agentlaunch-doctor /tmp/agentlaunch-doctor-arm64
           swift build -c release --arch x86_64
@@ -24,15 +26,38 @@ jobs:
           mkdir -p dist
           lipo -create /tmp/agentlaunch-doctor-arm64 /tmp/agentlaunch-doctor-x86_64 -output dist/agentlaunch-doctor
           codesign --force --sign - dist/agentlaunch-doctor
-          lipo -info dist/agentlaunch-doctor
+          test "$(dist/agentlaunch-doctor --version)" = "$VERSION"
+          lipo -verify_arch arm64 x86_64 dist/agentlaunch-doctor
+          codesign --verify --strict --verbose=2 dist/agentlaunch-doctor
           (cd dist && ditto -c -k agentlaunch-doctor agentlaunch-doctor-macos-universal.zip)
           (cd dist && shasum -a 256 agentlaunch-doctor-macos-universal.zip > SHA256SUMS)
-      - name: Create GitHub Release
+          test "$(zipinfo -1 dist/agentlaunch-doctor-macos-universal.zip)" = "agentlaunch-doctor"
+          (cd dist && shasum -a 256 -c SHA256SUMS)
+      - name: Create draft GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           gh release create "$GITHUB_REF_NAME" \
             dist/agentlaunch-doctor-macos-universal.zip \
             dist/SHA256SUMS \
             --title "AgentLaunch Doctor $GITHUB_REF_NAME" \
+            --draft \
             --generate-notes
+      - name: Verify published artifacts and publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p verified
+          gh release download "$GITHUB_REF_NAME" --dir verified
+          (cd verified && shasum -a 256 -c SHA256SUMS)
+          mkdir -p verified/extracted
+          unzip -q verified/agentlaunch-doctor-macos-universal.zip -d verified/extracted
+          test "$(find verified/extracted -type f | wc -l | tr -d ' ')" = "1"
+          test -f verified/extracted/agentlaunch-doctor
+          test "$(verified/extracted/agentlaunch-doctor --version)" = "$VERSION"
+          lipo -verify_arch arm64 x86_64 verified/extracted/agentlaunch-doctor
+          codesign --verify --strict --verbose=2 verified/extracted/agentlaunch-doctor
+          gh release edit "$GITHUB_REF_NAME" --draft=false

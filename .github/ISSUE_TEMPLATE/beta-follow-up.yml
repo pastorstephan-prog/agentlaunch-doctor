@@ -1,0 +1,117 @@
+name: External beta follow-up
+description: Link a re-scan to an activation issue and record whether one finding was resolved.
+title: "[Beta follow-up] "
+labels:
+  - beta-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        GitHub issues are public. This form measures confirmed fixes without collecting a diagnostic report.
+
+        Never paste or upload a full report, plist, label, filename, path, log, screenshot, token, credential, or account detail.
+  - type: input
+    id: activation_issue
+    attributes:
+      label: Activation issue number
+      description: Enter only the numeric issue number from your own initial beta activation.
+      placeholder: "123"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version used for the re-scan
+      placeholder: "0.3.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: rescan
+    attributes:
+      label: Did the re-scan complete?
+      options:
+        - Yes - exit 0
+        - Yes - exit 1 with another high finding
+        - No - exit 2 usage error
+        - No - could not start the scan
+    validations:
+      required: true
+  - type: dropdown
+    id: finding_code
+    attributes:
+      label: Finding code investigated
+      options:
+        - logs.not-created
+        - logs.parent-missing
+        - logs.stale
+        - logs.world-writable
+        - network.public-bind
+        - permissions.plist-writable
+        - permissions.secret-readable
+        - plist.label.missing
+        - plist.unreadable
+        - program.missing
+        - program.not-executable
+        - program.not-found
+        - program.relative
+        - program.tilde
+        - restart.always-on
+        - restart.low-throttle
+        - runtime.last-exit
+        - runtime.not-loaded
+        - secrets.arguments
+        - secrets.environment
+        - trigger.none
+        - working-directory.missing
+        - working-directory.tilde
+    validations:
+      required: true
+  - type: dropdown
+    id: finding_outcome
+    attributes:
+      label: Finding after the re-scan
+      options:
+        - No longer reported
+        - Still reported
+        - Could not determine
+    validations:
+      required: true
+  - type: dropdown
+    id: job_outcome
+    attributes:
+      label: Job behavior after the attempted fix
+      options:
+        - Works as intended
+        - Does not work as intended
+        - Behavior was not tested
+        - The job was intentionally removed
+    validations:
+      required: true
+  - type: dropdown
+    id: high_accuracy
+    attributes:
+      label: If this was high severity, was that classification correct?
+      options:
+        - Correct high-severity finding
+        - False high-severity finding
+        - Not a high-severity finding
+        - Unsure
+    validations:
+      required: true
+  - type: dropdown
+    id: elapsed
+    attributes:
+      label: Time since the activation issue
+      options:
+        - Less than 7 days
+        - 7 to 29 days
+        - 30 days or more
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy confirmation
+      options:
+        - label: I included only an issue number, version, form choices, and a finding code; no report, plist, identifiers, paths, logs, screenshots, secrets, or account details.
+          required: true

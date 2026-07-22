@@ -148,6 +148,67 @@ final class DoctorTests: XCTestCase {
         XCTAssertTrue(json.contains("nextStep"))
     }
 
+    func testFeedbackReportContainsOnlyAggregateFieldsAndCodes() throws {
+        let secret = "private-token-and-customer-name"
+        let plist = try writePlist([
+            "Label": "com.private.customer-agent",
+            "ProgramArguments": ["/bin/echo", "--token", secret],
+            "RunAtLoad": true,
+            "EnvironmentVariables": ["API_TOKEN": secret],
+        ], permissions: 0o644, filename: "customer-private-name.plist")
+        let report = makeDoctor().scan(urls: [plist])
+        let rendered = FeedbackRenderer.render(report)
+
+        XCTAssertTrue(rendered.contains("AgentLaunch Doctor feedback"))
+        XCTAssertTrue(rendered.contains("version: \(AgentDoctor.version)"))
+        XCTAssertTrue(rendered.contains("agents: 1"))
+        XCTAssertTrue(rendered.contains("- permissions.secret-readable"))
+        XCTAssertTrue(rendered.contains("- secrets.arguments"))
+        XCTAssertFalse(rendered.contains(secret))
+        XCTAssertFalse(rendered.contains("com.private.customer-agent"))
+        XCTAssertFalse(rendered.contains("customer-private-name"))
+        XCTAssertFalse(rendered.contains(temporaryDirectory.path))
+        XCTAssertFalse(rendered.contains("Source:"))
+        XCTAssertFalse(rendered.contains("Next:"))
+        XCTAssertFalse(rendered.contains("generatedAt"))
+        XCTAssertFalse(rendered.contains("runtime"))
+    }
+
+    func testFeedbackFindingCodesAreUniqueAndSorted() {
+        let finding = Finding(severity: .warning, code: "trigger.none", message: "private message")
+        let report = ScanReport(
+            product: "AgentLaunch Doctor",
+            version: AgentDoctor.version,
+            generatedAt: "private timestamp",
+            privacyMode: "local",
+            summary: ReportSummary(agents: 2, high: 0, warnings: 2, info: 1),
+            agents: [
+                AgentReport(
+                    agent: "private-a",
+                    source: "/private/a.plist",
+                    runtime: RuntimeStatus(loaded: true, state: "running", pid: 123, runs: 9, lastExitCode: 0),
+                    findings: [finding, Finding(severity: .info, code: "scan.clean", message: "private message")]
+                ),
+                AgentReport(
+                    agent: "private-b",
+                    source: "/private/b.plist",
+                    runtime: RuntimeStatus(loaded: false, state: nil, pid: nil, runs: nil, lastExitCode: nil),
+                    findings: [finding]
+                ),
+            ]
+        )
+
+        let rendered = FeedbackRenderer.render(report)
+        XCTAssertEqual(rendered.components(separatedBy: "- trigger.none").count - 1, 1)
+        XCTAssertLessThan(
+            rendered.range(of: "- scan.clean")!.lowerBound,
+            rendered.range(of: "- trigger.none")!.lowerBound
+        )
+        XCTAssertFalse(rendered.contains("private"))
+        XCTAssertFalse(rendered.contains("running"))
+        XCTAssertFalse(rendered.contains("123"))
+    }
+
     private func makeDoctor() -> AgentDoctor {
         AgentDoctor(options: DoctorOptions(now: Date(timeIntervalSince1970: 0), queryRuntime: false))
     }

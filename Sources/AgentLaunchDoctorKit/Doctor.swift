@@ -106,7 +106,7 @@ public enum DoctorError: LocalizedError {
 }
 
 public final class AgentDoctor {
-    public static let version = "0.2.2"
+    public static let version = "0.3.0"
 
     private let options: DoctorOptions
     private let fileManager: FileManager
@@ -471,6 +471,26 @@ public enum TextRenderer {
             }
             lines.append("")
         }
+        return lines.joined(separator: "\n")
+    }
+}
+
+/// Produces the smallest useful public-beta payload. It intentionally omits
+/// agent identifiers, source paths, timestamps, messages, next steps, and
+/// runtime details, even when handed a non-strict report.
+public enum FeedbackRenderer {
+    public static func render(_ report: ScanReport) -> String {
+        let codes = Set(report.agents.flatMap(\.findings).map(\.code)).sorted()
+        var lines = [
+            "AgentLaunch Doctor feedback",
+            "version: \(report.version)",
+            "agents: \(report.summary.agents)",
+            "high: \(report.summary.high)",
+            "warnings: \(report.summary.warnings)",
+            "info: \(report.summary.info)",
+            "finding_codes:",
+        ]
+        lines.append(contentsOf: codes.map { "- \($0)" })
         return lines.joined(separator: "\n")
     }
 }

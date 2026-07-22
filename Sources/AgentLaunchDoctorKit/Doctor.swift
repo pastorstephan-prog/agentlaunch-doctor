@@ -106,7 +106,7 @@ public enum DoctorError: LocalizedError {
 }
 
 public final class AgentDoctor {
-    public static let version = "0.2.1"
+    public static let version = "0.2.2"
 
     private let options: DoctorOptions
     private let fileManager: FileManager

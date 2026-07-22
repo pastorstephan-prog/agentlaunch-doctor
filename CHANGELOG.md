@@ -2,6 +2,10 @@
 
 All notable changes to AgentLaunch Doctor are documented here.
 
+## 0.2.2 - 2026-07-23
+
+- Fix Universal-architecture validation in the protected release workflow.
+
 ## 0.2.1 - 2026-07-23
 
 - Pin third-party GitHub Actions to immutable commits.

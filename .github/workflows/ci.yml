@@ -19,6 +19,8 @@ jobs:
         run: swift build -c release
       - name: CLI smoke test
         run: .build/release/agentlaunch-doctor --version
+      - name: Distribution script syntax
+        run: bash -n scripts/sign-and-notarize.sh
   intel-verify:
     runs-on: macos-15-intel
     steps:

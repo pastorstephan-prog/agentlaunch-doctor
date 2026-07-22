@@ -33,6 +33,8 @@ swift run agentlaunch-doctor --all-user-agents
 
 GitHub ReleasesのUniversalバイナリはad-hoc署名で、Appleの公証は未取得です。別のMacではGatekeeperに止められる場合があるため、その場合はHomebrew版を利用してください。macOSのセキュリティ確認を回避する操作は案内しません。
 
+メンテナー向けのリリース基準とDeveloper ID公証の準備手順は、[DISTRIBUTION.md](DISTRIBUTION.md)を参照してください。
+
 公開ベータ用の最小レポート:
 
 ```bash

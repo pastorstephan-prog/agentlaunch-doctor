@@ -48,6 +48,8 @@ unzip agentlaunch-doctor-macos-universal.zip
 
 The release archive is ad-hoc signed and not Apple-notarized. Gatekeeper may block it on another Mac; use the Homebrew source build when that happens. The project does not recommend bypassing macOS security checks.
 
+Maintainers: see [DISTRIBUTION.md](DISTRIBUTION.md) for the release gate and the prepared Developer ID notarization workflow.
+
 Inspect selected jobs:
 
 ```bash

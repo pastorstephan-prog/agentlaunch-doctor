@@ -6,7 +6,7 @@ Read-only health and privacy diagnostics for macOS LaunchAgents used by local AI
 
 AgentLaunch Doctor answers a narrow question: **is this background job configured safely enough to trust, and does launchd agree that it is healthy?**
 
-It checks plist validity, executable and working-directory paths, launchctl state, last exit status, log freshness, file permissions, restart-loop risk, public bind arguments, and secret-shaped configuration. It never prints secret values or reads log contents.
+It checks plist validity, executable and working-directory paths, launchctl state, last exit status, log freshness, file permissions, restart-loop risk, public bind arguments, and secret-shaped configuration. Every finding includes a privacy-safe next step. It never prints secret values or reads log contents.
 
 ## Safety promise
 
@@ -72,6 +72,10 @@ Exit code is `1` when a high-severity finding exists, otherwise `0`. CLI usage e
 
 Findings are diagnostic evidence, not automatic proof of a vulnerability. Review a job's own documentation before changing it.
 
+## External beta
+
+The current beta measures confirmed fixes, false high-severity findings, and repeat use without default telemetry. See [BETA.md](BETA.md) before sharing feedback. Public issues must contain only aggregate counts and finding codes—never plist contents, labels, paths, logs, or secrets.
+
 ## Development
 
 ```bash
@@ -81,7 +85,7 @@ swift build -c release
 
 ## Scope
 
-Version 0.1 inspects per-user LaunchAgents. It deliberately does not request administrator access or inspect system LaunchDaemons.
+Version 0.2 inspects per-user LaunchAgents. It deliberately does not request administrator access or inspect system LaunchDaemons.
 
 ## License
 

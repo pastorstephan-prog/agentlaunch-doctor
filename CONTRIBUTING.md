@@ -2,6 +2,8 @@
 
 Bug reports and focused pull requests are welcome.
 
+External scan outcomes should use the beta feedback form and follow [BETA.md](BETA.md).
+
 ## Before opening an issue
 
 - Reproduce with the newest release.
